@@ -1,7 +1,7 @@
 {
   "name": "cron-job-update-citas",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "node index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
