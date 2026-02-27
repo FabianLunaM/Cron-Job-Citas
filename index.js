@@ -6,6 +6,7 @@ const pool = new Pool({
   ssl: { rejectUnauthorized: false }
 });
 
+
 // Ejecutar cada día a medianoche
 cron.schedule('0 0 * * *', async () => {
   try {
@@ -13,7 +14,7 @@ cron.schedule('0 0 * * *', async () => {
       `UPDATE appointments 
        SET status = 'completada' 
        WHERE date < CURRENT_DATE 
-       AND status = 'activa'`
+       AND status = 'pendiente'`
     );
     console.log("✅ Estados de citas actualizados automáticamente");
   } catch (err) {
