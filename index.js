@@ -8,6 +8,11 @@ const pool = new Pool({
 });
 
 
+sendWhatsAppMessage(
+  '+59178835733', // número de prueba
+  'Mensaje de prueba desde Railway 🚀'
+);
+
 // Ejecutar cada día a medianoche
 cron.schedule('0 0 * * *', async () => {
   try {
@@ -43,7 +48,7 @@ cron.schedule('*/10 * * * *', async () => {
       const diffMinutes = (citaDateTime - now) / (1000 * 60);
 
       // Si faltan entre 89 y 90 minutos
-      if (diffMinutes <= 90 && diffMinutes > 89) {
+      if (diffMinutes <= 90 && diffMinutes >= 80) {
         // Mensaje al paciente
         sendWhatsAppMessage(
           cita.patient_phone,
