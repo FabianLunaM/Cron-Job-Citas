@@ -29,40 +29,48 @@ cron.schedule('0 0 * * *', async () => {
 });
 
 
-// Cada 10 minutos
-cron.schedule('*/30 * * * *', async () => {
+cron.schedule('* * * * *', async () => {
   try {
+    console.log("⏰ Ejecutando búsqueda de citas...");
+
     const result = await pool.query(`
       SELECT a.id, a.date, a.time, a.status,
              p.phone AS patient_phone, p.name AS patient_name
       FROM appointments a
       JOIN patients p ON a.patient_id = p.id
       WHERE a.status = 'pendiente'
-        AND (a.date || ' ' || a.time)::timestamp 
-            BETWEEN NOW() AND NOW() + INTERVAL '1 hour'
     `);
 
+    console.log(`🔎 Se encontraron ${result.rows.length} citas pendientes`);
+
     result.rows.forEach(cita => {
-      // Mensaje al paciente
-      sendWhatsAppMessage(
-        cita.patient_phone,
-        `Hola ${cita.patient_name}, te escribimos del consultorio dental *Ortodent* 🦷✨
+      const citaDateTime = new Date(`${cita.date}T${cita.time}-04:00`); // ajusta zona horaria Bolivia
+      const now = new Date();
+      const diffMinutes = (citaDateTime - now) / (1000 * 60);
+
+      console.log(`➡️ Cita ${cita.id}: ${cita.date} ${cita.time} - faltan ${Math.round(diffMinutes)} minutos`);
+
+      // Para pruebas: enviamos si faltan menos de 60 minutos
+      if (diffMinutes <= 60 && diffMinutes >= 0) {
+        sendWhatsAppMessage(
+          cita.patient_phone,
+          `Hola ${cita.patient_name}, te escribimos del consultorio dental *Ortodent* 🦷✨
+          
+          Te recordamos que tienes una cita agendada para las ${cita.time}.  
+          Por favor asiste puntual y no olvides cepillarte los dientes antes de tu visita.  
+
+          ¡Te esperamos con una gran sonrisa! 😁`
+        );
+
+        sendWhatsAppMessage(
+          '+59178835733',
+          `Recordatorio: Cita agendada con ${cita.patient_name} a las ${cita.time}.
         
-        Te recordamos que tienes una cita agendada para las ${cita.time}.  
-        Por favor asiste puntual y no olvides cepillarte los dientes antes de tu visita.  
+          Este es un mensaje automatico. No olvides asistir. 😁`
+        );
 
-        ¡Te esperamos con una gran sonrisa! 😁`
-      );
-
-      // Mensaje a la doctora (número fijo)
-      sendWhatsAppMessage(
-        '+59178835733',
-        `Recordatorio: Cita agendada con ${cita.patient_name} a las ${cita.time}.
-        
-        Este es un mensaje automatico. No olvides asistir. 😁`
-      );
-
-      console.log(`✅ Recordatorios enviados para cita ${cita.id}`);
+        console.log(`✅ Recordatorios enviados para cita ${cita.id}`);
+      }
     });
   } catch (err) {
     console.error("❌ Error enviando recordatorios:", err);
