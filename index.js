@@ -42,7 +42,7 @@ cron.schedule('* * * * *', async () => {
     WHERE a.status = 'pendiente'
       AND (a.date + a.time) AT TIME ZONE 'America/La_Paz'
           BETWEEN (NOW() AT TIME ZONE 'America/La_Paz')
-              AND (NOW() AT TIME ZONE 'America/La_Paz') + INTERVAL '1 hour';
+              AND (NOW() AT TIME ZONE 'America/La_Paz') + INTERVAL '24 hours';
 
     `);
 
@@ -51,6 +51,9 @@ cron.schedule('* * * * *', async () => {
     result.rows.forEach(cita => {
       const citaDateTime = new Date(cita.cita_datetime); // ajusta zona horaria Bolivia
       const now = new Date();
+      console.log("🕒 Hora servidor (UTC):", now.toISOString());
+      const nowBolivia = new Date(now.getTime() - 4*60*60*1000);
+      console.log("🕒 Hora Bolivia:", nowBolivia.toISOString());
       const diffMinutes = (citaDateTime - now) / (1000 * 60);
 
       console.log(`➡️ Cita ${cita.id}: ${cita.date} ${cita.time} - faltan ${Math.round(diffMinutes)} minutos`);
