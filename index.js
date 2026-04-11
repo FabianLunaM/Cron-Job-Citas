@@ -36,10 +36,14 @@ cron.schedule('* * * * *', async () => {
     const result = await pool.query(`
       SELECT a.id, a.date, a.time, a.status,
             p.phone AS patient_phone, p.name AS patient_name,
-            (a.date::timestamp + a.time) AS cita_datetime
+            (a.date::timestamp + a.time) AT TIME ZONE 'America/La_Paz' AS cita_datetime
       FROM appointments a
       JOIN patients p ON a.patient_id = p.id
-      WHERE a.status = 'pendiente';
+      WHERE a.status = 'pendiente'
+        AND (a.date::timestamp + a.time) AT TIME ZONE 'America/La_Paz'
+            BETWEEN NOW() AT TIME ZONE 'America/La_Paz'
+                AND (NOW() AT TIME ZONE 'America/La_Paz') + INTERVAL '1 hour';
+
     `);
 
     console.log(`🔎 Se encontraron ${result.rows.length} citas pendientes`);
