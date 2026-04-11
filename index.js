@@ -28,8 +28,8 @@ cron.schedule('0 0 * * *', async () => {
   }
 });
 
-
-cron.schedule('* * * * *', async () => {
+// Envio recordatorios
+cron.schedule('0 * * * *', async () => {
   try {
     console.log("⏰ Ejecutando búsqueda de citas...");
 
@@ -59,7 +59,7 @@ cron.schedule('* * * * *', async () => {
       console.log(`➡️ Cita ${cita.id}: ${cita.date} ${cita.time} - faltan ${Math.round(diffMinutes)} minutos`);
 
       // Para pruebas: enviamos si faltan menos de 60 minutos
-      if (diffMinutes <= 60 && diffMinutes >= 0) {
+      if (diffMinutes <= 120 && diffMinutes >= 0) {
         sendWhatsAppMessage(
           cita.patient_phone,
           `Hola ${cita.patient_name}, te escribimos del consultorio dental *Ortodent* 🦷✨
@@ -69,14 +69,15 @@ cron.schedule('* * * * *', async () => {
 
           ¡Te esperamos con una gran sonrisa! 😁`
         );
-
-        sendWhatsAppMessage(
-          '+59178835733',
-          `Recordatorio: Cita agendada con ${cita.patient_name} a las ${cita.time}.
         
-          Este es un mensaje automatico. No olvides asistir. 😁`
-        );
-
+        setTimeout(() => {
+          sendWhatsAppMessage(
+            '+59178835733',
+            `Recordatorio: Cita agendada con ${cita.patient_name} a las ${cita.time}.
+          
+            Este es un mensaje automatico. No olvides asistir. 😁`
+          );
+        }, 6000);
         console.log(`✅ Recordatorios enviados para cita ${cita.id}`);
       }
     });
