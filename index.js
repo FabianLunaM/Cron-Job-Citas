@@ -35,16 +35,17 @@ cron.schedule('* * * * *', async () => {
 
     const result = await pool.query(`
       SELECT a.id, a.date, a.time, a.status,
-             p.phone AS patient_phone, p.name AS patient_name
+            p.phone AS patient_phone, p.name AS patient_name,
+            (a.date::timestamp + a.time) AS cita_datetime
       FROM appointments a
       JOIN patients p ON a.patient_id = p.id
-      WHERE a.status = 'pendiente'
+      WHERE a.status = 'pendiente';
     `);
 
     console.log(`🔎 Se encontraron ${result.rows.length} citas pendientes`);
 
     result.rows.forEach(cita => {
-      const citaDateTime = new Date(`${cita.date}T${cita.time}-04:00`); // ajusta zona horaria Bolivia
+      const citaDateTime = new Date(cita.cita_datetime); // ajusta zona horaria Bolivia
       const now = new Date();
       const diffMinutes = (citaDateTime - now) / (1000 * 60);
 
